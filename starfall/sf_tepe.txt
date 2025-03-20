@@ -1,0 +1,57 @@
+--@name sf tepe 
+--@author Pompin84 (Dogeowsky), Exotic (siedzial i tylko narzekal)
+--@server
+
+chip()setNoDraw(true)
+chip()setSolid(false)
+
+function createSeat(vec)
+    try(function() 
+            local seat = prop.createSeat(vec + Vector(-50, 0, 25), Angle(), modelshunterplatesplate.mdl, true)
+            seatuse()
+            seatremove()   
+        end, function(e) 
+            print(Color(255,0,0), e.message)
+            printTable(e)
+    end)
+end 
+
+hook.add(PlayerSay, tp_ply, function(ply, text) 
+    if ply ~= owner() then return end
+    
+    local message = string.explode( , text)
+    if string.lower(message[1]) ~= .tp then return end
+    
+    local tpPly = find.playersByName(message[2], false, false)[1]
+    if tpPly then
+        createSeat(tpPlygetPos())
+        print(
+            Color(0,0,0), [,
+            Color(255,0,0), SFtepe,
+            Color(0,0,0), ] ,
+            Color(255,255,255), Teleported to ,
+            team.getColor(tpPlygetTeam()), tpPlygetName()
+        )                
+    else 
+        print(
+            Color(0,0,0), [,
+            Color(255,0,0), SFtepe,
+            Color(0,0,0), ] ,
+            Color(255,255,255), There is no such player!
+        )
+    end
+    
+    return 
+end)
+
+hook.add(KeyPress, tp_hitpos, function(ply, key)
+    if ply ~= owner() or key ~= IN_KEY.WALK then return end
+    
+    createSeat(owner()getEyeTrace().HitPos)
+    print(
+        Color(0,0,0), [,
+        Color(255,0,0), SFtepe,
+        Color(0,0,0), ] ,
+        Color(255,255,255), Teleported to eyetrace hitpos!
+    )
+end)
