@@ -1,6 +1,6 @@
 -- dziwne to glua
 
---maksymalna liczba zapisanych map (i tak trzeba or zedytować w while za 51 linijką)
+--maksymalna liczba zapisanych map
 maxCachedMaps = 3
 --pula map
 mapPool =  {
@@ -48,10 +48,7 @@ timer.Simple(0, function()
 
     nextMap = mapPool[math.random(1, #mapPool)]
 
-    while nextMap == lastMaps[1]
-        or nextMap == lastMaps[2]
-        or nextMap == lastMaps[3]
-    do
+    while table.HasValue(lastMaps, nextMap) do
         nextMap = mapPool[math.random(1, #mapPool)]
     end
 
