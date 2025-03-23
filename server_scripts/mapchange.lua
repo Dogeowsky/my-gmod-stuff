@@ -1,8 +1,6 @@
 -- dziwne to glua
 
---maksymalna liczba zapisanych map
 maxCachedMaps = 3
---pula map
 mapPool =  {
     "ttt_67thway_v5_2014",
     "ttt_abyss",
@@ -27,30 +25,27 @@ mapPool =  {
     "ttt_westward"
 }
 
--- kod
 timer.Simple(0, function()
     lastMaps = string.Explode("\n", file.Read("lastmaps.txt"))
 
-    if #lastMaps >= maxCachedMaps then
-        file.Write("lastmaps.txt", "")
-        for i = 1, maxCachedMaps do
-            if i == maxCachedMaps then
-                lastMaps[i] = game.GetMap()
-            else
-                lastMaps[i] = lastMaps[i + 1]
-            end
-
-            file.Append("lastmaps.txt", lastMaps[i] .. "\n")
+    for i = #lastMaps, 1, -1 do
+        if lastMaps[i] == "" then
+            table.remove(lastMaps, i)
         end
-    else
-        file.Append("lastmaps.txt", game.GetMap() .. "\n")
     end
 
-    nextMap = mapPool[math.random(1, #mapPool)]
+    table.insert(lastMaps, game.GetMap())
 
-    while table.HasValue(lastMaps, nextMap) do
+    while #lastMaps > maxCachedMaps do
+        table.remove(lastMaps, 1)
+    end
+
+    file.Write("lastmaps.txt", table.concat(lastMaps, "\n"))
+
+    local nextMap
+    repeat
         nextMap = mapPool[math.random(1, #mapPool)]
-    end
+    until not table.HasValue(lastMaps, nextMap)
 
     RunConsoleCommand("nextlevel", nextMap)
 end)
