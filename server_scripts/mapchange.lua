@@ -50,12 +50,12 @@ timer.Simple(0, function()
     -- Saving a modified list in a file
     file.Write("lastmaps.txt", table.concat(lastMaps, "\n"))
 
-    -- Selecting a new map with avoidance of previous one
+    -- Selecting a new map while ignoring previous maps
     local nextMap
     repeat
         nextMap = mapPool[math.random(1, #mapPool)]
     until not table.HasValue(lastMaps, nextMap)
 
-    -- Set the new map as the next
+    -- Set the drawn map as the next one
     RunConsoleCommand("nextlevel", nextMap)
 end)
