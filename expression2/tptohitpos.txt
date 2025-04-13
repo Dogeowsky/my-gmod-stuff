@@ -1,0 +1,70 @@
+@name TPtoHitpos + other utilities
+@persist TP_Key:string
+
+TP_Key = "g"
+
+### no touchy touchy ###
+
+function createSeat(Pos:vector) {
+    Seat = seatSpawn("models/sprops/rectangles/size_1/rect_3x3x3.mdl", Pos, ang(), 1)
+    Seat:propDraw(0)
+    Seat:use()
+    Seat:propDelete()
+}
+
+if(first() | dupefinished()) {
+    entity():propDraw(0)
+    entity():propNotSolid(1)
+}
+
+event keyPressed(Player:entity, Key:string, Down:number, _:string) {
+    if (Player == owner() && Key == TP_Key && Down) {
+        local Trace = owner():eyeTrace() 
+    
+        createSeat(Trace:pos() + Trace:hitNormal())
+    
+        local X = round(Trace:pos():x(), 0)
+        local Y = round(Trace:pos():y(), 0)
+        local Z = round(Trace:pos():z(), 0)  
+    
+        printColor(
+            vec(), "[", 
+            vec(255,0,0), "TPtH", 
+            vec(), "] ", 
+            vec(255,255,255), "Teleported to", 
+            vec(0,0,0), ": ", vec(), "<", 
+            vec(255,0,0), X:toString(), 
+            vec(), ", ", 
+            vec(0,255,0), Y:toString(), 
+            vec(), ", ", 
+            vec(0,0,255), Z:toString(), 
+            vec(), ">"
+        )
+    }
+}
+
+event chat(Player:entity, Message:string, _:number) {
+    if (Player == owner()) {
+        local MessageSegment = Message:explode(" ")
+        
+        if (MessageSegment[1, string]:lower() == ".t") {
+            hideChat(1)
+            
+            local TP = findPlayerByName(MessageSegment[2,string])
+            createSeat(TP:toWorld(vec(50,0,50)))
+            
+            printColor(
+                vec(0,0,0), "[",
+                vec(255,0,0), "TPtP",
+                vec(0,0,0), "] ",
+                vec(255,255,255), "Teleported to",
+                vec(0,0,0), ": ",
+                vec(), "<", 
+                vec(46,151,255), TP:name(), 
+                vec(), ">"
+            )
+        }
+    }
+}
+
+## 46,151,255 - blu
