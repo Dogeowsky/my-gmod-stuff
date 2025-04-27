@@ -1,0 +1,69 @@
+@name Ductor Mini v0.1.1
+@inputs EGP:wirelink
+@persist Plys:array
+
+function createPlyNode(I:number, Ply:entity) {
+    local EIndex = I + maxPlayers()
+    
+    if(EGP) {
+        EGP:egp3DTracker(I, vec())
+        EGP:egpParent(I, Ply)
+        
+        EGP:egpText(EIndex, Ply:name(), vec2(0))
+        EGP:egpColor(EIndex, teamColor(Ply:team()))
+        EGP:egpAlign(EIndex, 1)
+        EGP:egpParent(EIndex, I)
+    }
+}
+
+function removePlyNode(I:number) {
+    local EIndex = I + maxPlayers()
+
+    if(EGP) {
+        EGP:egpRemove(I)
+        EGP:egpRemove(EIndex) 
+    }
+}
+
+if(first()) {
+    if(EGP) {
+        EGP:egpClear()
+    }
+    else {
+        hint("Link your EGP and reset the chip!", 10)   
+    }
+    Plys = players()
+
+    foreach(I:number, Ply:entity = Plys) {
+        #print(Ply)
+        
+        if(Ply != owner()) {
+            createPlyNode(I, Ply)
+        }
+    }   
+}
+
+event playerConnected(ConnectedPly:entity) {
+    Plys = players()
+    
+    foreach(I:number, Ply:entity = Plys) {
+        if(Ply == ConnectedPly) {
+            timer("awaitPlayerInit", 0.2, function() {
+                createPlyNode(I, Ply)    
+            })
+            break
+        }
+    }
+}
+
+event playerDisconnected(_:entity) {
+    Plys = players()
+    
+    foreach(I:number, Ply:entity = Plys) {
+        if(!Ply:isValid()) {
+            removePlyNode(I)
+        }
+    }
+}
+
+# by Pompin84 (Dogeowsky)
