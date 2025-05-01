@@ -1,4 +1,4 @@
-@name Ductor Mini v0.1.1
+@name Ductor Mini v0.2.1
 @inputs EGP:wirelink
 @persist Plys:array
 
@@ -18,7 +18,7 @@ function createPlyNode(I:number, Ply:entity) {
 
 function removePlyNode(I:number) {
     local EIndex = I + maxPlayers()
-
+    
     if(EGP) {
         EGP:egpRemove(I)
         EGP:egpRemove(EIndex) 
@@ -26,44 +26,51 @@ function removePlyNode(I:number) {
 }
 
 if(first()) {
+    DEBUG = 1 # debug mode
+        
+    Plys = array()
     if(EGP) {
-        EGP:egpClear()
+        EGP:egpClear()   
     }
     else {
-        hint("Link your EGP and reset the chip!", 10)   
+        print("Link your EGP and reset the chip!")   
     }
-    Plys = players()
-
-    foreach(I:number, Ply:entity = Plys) {
-        #print(Ply)
-        
+    
+    foreach(_:number, Ply:entity = players()) {
         if(Ply != owner()) {
-            createPlyNode(I, Ply)
+            Plys:pushEntity(Ply)
+            
+            createPlyNode(Plys:count(), Ply)
+            
+            if(DEBUG) {
+                print(Ply)
+            }            
         }
-    }   
+    }
 }
 
 event playerConnected(ConnectedPly:entity) {
-    Plys = players()
+    timer("awaitPlayerInit", 0.2, function() {
+        Plys:pushEntity(ConnectedPly)
+        
+        createPlyNode(Plys:count(), ConnectedPly)
+    })
     
-    foreach(I:number, Ply:entity = Plys) {
-        if(Ply == ConnectedPly) {
-            timer("awaitPlayerInit", 0.2, function() {
-                createPlyNode(I, Ply)    
-            })
-            break
-        }
-    }
+    if(DEBUG) {
+        print(ConnectedPly:name() + "has joined the server.")   
+    }    
 }
 
-event playerDisconnected(_:entity) {
-    Plys = players()
-    
-    foreach(I:number, Ply:entity = Plys) {
-        if(!Ply:isValid()) {
-            removePlyNode(I)
-        }
+event playerDisconnected(DisconnectedPly:entity) {
+    foreach(Key:number, Ply:entity = Plys) {
+        if(DisconnectedPly == Ply) {
+            Plys:remove(Key)
+            
+            removePlyNode(Key)
+            
+            if(DEBUG) {
+                print(DisconnectedPly:name() + "has left the server.")   
+            }
+        }   
     }
 }
-
-# by Pompin84 (Dogeowsky)
