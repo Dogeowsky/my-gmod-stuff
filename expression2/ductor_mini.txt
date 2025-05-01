@@ -54,11 +54,11 @@ event playerConnected(ConnectedPly:entity) {
         Plys:pushEntity(ConnectedPly)
         
         createPlyNode(Plys:count(), ConnectedPly)
-    })
-    
-    if(DEBUG) {
-        print(ConnectedPly:name() + "has joined the server.")   
-    }    
+        
+        if(DEBUG) {
+            print(ConnectedPly:name() + "has joined the server.")   
+        }  
+    })  
 }
 
 event playerDisconnected(DisconnectedPly:entity) {
