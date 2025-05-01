@@ -1,6 +1,8 @@
-@name Ductor Mini v0.2.1
+@name Ductor Mini v0.2.2
 @inputs EGP:wirelink
 @persist Plys:array
+
+DEBUG = 1 # debug mode
 
 function createPlyNode(I:number, Ply:entity) {
     local EIndex = I + maxPlayers()
@@ -26,8 +28,6 @@ function removePlyNode(I:number) {
 }
 
 if(first()) {
-    DEBUG = 1 # debug mode
-        
     Plys = array()
     if(EGP) {
         EGP:egpClear()   
@@ -36,11 +36,11 @@ if(first()) {
         print("Link your EGP and reset the chip!")   
     }
     
-    foreach(_:number, Ply:entity = players()) {
+    foreach(Key:number, Ply:entity = players()) {
         if(Ply != owner()) {
             Plys:pushEntity(Ply)
             
-            createPlyNode(Plys:count(), Ply)
+            createPlyNode(Key, Ply)
             
             if(DEBUG) {
                 print(Ply)
@@ -54,23 +54,27 @@ event playerConnected(ConnectedPly:entity) {
         Plys:pushEntity(ConnectedPly)
         
         createPlyNode(Plys:count(), ConnectedPly)
-        
-        if(DEBUG) {
-            print(ConnectedPly:name() + "has joined the server.")   
-        }  
     })  
 }
 
 event playerDisconnected(DisconnectedPly:entity) {
     foreach(Key:number, Ply:entity = Plys) {
         if(DisconnectedPly == Ply) {
-            Plys:remove(Key)
+            Plys:removeEntity(Key)
             
             removePlyNode(Key)
             
-            if(DEBUG) {
-                print(DisconnectedPly:name() + "has left the server.")   
-            }
+            break
         }   
     }
 }
+
+event keyPressed(Player:entity, Key:string, Down:number, _:string) {
+    if(Player == owner()) {
+        if(Key == "g" && Down) {
+            printTable(Plys)
+        }
+    }   
+}
+
+# by Pompin84 (Dogeowsky)
