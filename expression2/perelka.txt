@@ -2,6 +2,8 @@
 @trigger none 
 @strict
 
+Invalid = 0
+
 event entityCreated(Entity:entity) {
     try {
         if (Entity:owner() == owner()) {    
@@ -16,6 +18,14 @@ event entityCreated(Entity:entity) {
                 holoParent(E_I, Entity)       
                 holoEntity(E_I):soundPlay(E_I, 0, "ep2_outland_11.borealis_wind_loop")
                 soundPitch(E_I, random(133,166))
+                
+                # In case you throw it into void! :D
+                timer(20, 1, function() {
+                    if (Entity:isValid()) { 
+                        Invalid = 1 
+                        Entity:propDelete()   
+                    }   
+                })
             }
         }   
     } catch(E:string) {
@@ -28,18 +38,23 @@ event entityRemoved(Entity:entity) {
         if (Entity:owner() == owner()) {    
             let E_C = Entity:getClass()
             if (E_C == "npc_grenade_bugbait") { 
-                let E_I = Entity:id()
-                
-                holoUnparent(E_I)
-                holoAlpha(E_I, 0)
-                
-                let S = seatSpawn("", Entity:pos(), ang(), 0)   
-                S:use()
-                
-                holoEntity(E_I):soundPlay(E_I, 0, "#ambient/energy/ion_cannon_shot3.wav")
-                soundPitch(E_I, random(140,170))
-
-                S:propDelete()            
+                if (!Invalid) {
+                    let E_I = Entity:id()
+                    
+                    holoUnparent(E_I)
+                    holoAlpha(E_I, 0)
+                    
+                    let S = seatSpawn("", Entity:pos(), ang(), 0)   
+                    S:use()
+                    
+                    holoEntity(E_I):soundPlay(E_I, 0, "#ambient/energy/ion_cannon_shot3.wav")
+                    soundPitch(E_I, random(140,170))
+    
+                    S:propDelete()     
+                }
+                else {
+                    Invalid = 0
+                }       
             }
         }   
     } catch(E:string) {
